@@ -16,15 +16,23 @@ A web-based product inventory management application built with **Laravel 13**. 
 
 ---
 
+## 🔗 Application Access
+
+Once the server is running, you can access the following pages:
+- **Product Catalog**: `/katalog`
+- **API Documentation (Swagger)**: `/api/documentation`
+
+---
+
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Laravel 13 |
-| Language | PHP 8.3+ |
-| Database | MySQL |
-| API Docs | L5-Swagger (OpenAPI) |
-| Frontend | Blade + Vanilla CSS/JS |
+| Layer     | Technology             |
+| --------- | ---------------------- |
+| Framework | Laravel 13             |
+| Language  | PHP 8.3+               |
+| Database  | MySQL                  |
+| API Docs  | L5-Swagger (OpenAPI)   |
+| Frontend  | Blade + Vanilla CSS/JS |
 
 ---
 
@@ -53,11 +61,11 @@ php artisan serve
 
 ## 🌐 API Endpoints
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/products?category=` | Fetch product list (use `all` for all products) |
-| `POST` | `/api/products` | Add a new product |
-| `DELETE` | `/api/products/{id}` | Delete a product by ID |
+| Method   | Endpoint                  | Description                                     |
+| -------- | ------------------------- | ----------------------------------------------- |
+| `GET`    | `/api/products?category=` | Fetch product list (use `all` for all products) |
+| `POST`   | `/api/products`           | Add a new product                               |
+| `DELETE` | `/api/products/{id}`      | Delete a product by ID                          |
 
 ---
 
@@ -82,15 +90,15 @@ routes/
 
 ## 📊 `products` Table Schema
 
-| Column | Type | Description |
-|---|---|---|
-| `id` | bigint | Primary key |
-| `sku` | string | Product unique code |
-| `name` | string | Product name |
-| `category` | string | Category |
-| `price` | numeric | Price |
-| `stock` | integer | Stock amount |
-| `status` | string | Status (active / inactive) |
+| Column     | Type    | Description                |
+| ---------- | ------- | -------------------------- |
+| `id`       | bigint  | Primary key                |
+| `sku`      | string  | Product unique code        |
+| `name`     | string  | Product name               |
+| `category` | string  | Category                   |
+| `price`    | numeric | Price                      |
+| `stock`    | integer | Stock amount               |
+| `status`   | string  | Status (active / inactive) |
 
 ---
 
