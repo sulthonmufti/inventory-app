@@ -178,6 +178,33 @@
         }
         .card-stock strong { color: var(--text-primary); }
 
+        /* ── Style button ───────────────────────────────────── */
+        .delete-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            background-color: #fee2e2; /* Merah sangat muda */
+            color: #ef4444; /* Merah standar */
+            border: 1px solid #fecaca;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: #ef4444;
+            color: white;
+            border-color: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .delete-btn svg {
+            display: block;
+        }
+
         /* ── Empty State ───────────────────────────────────── */
         .empty-state {
             grid-column: 1 / -1;
@@ -233,7 +260,12 @@
         @forelse ($products as $product)
         <div class="product-card" data-name="{{ strtolower($product->name) }}" data-sku="{{ strtolower($product->sku) }}" data-status="{{ strtolower($product->status) }}">
             <div class="card-header">
-                <span class="card-sku">{{ $product->sku }}</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="card-sku">{{ $product->sku }}</span>
+                    <button onclick="deleteProduct('{{ $product->id }}')" class="delete-btn" title="Hapus Produk">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                </div>
                 <span class="card-status {{ strtolower($product->status) === 'active' ? 'active' : 'inactive' }}">
                     {{ ucfirst($product->status) }}
                 </span>
@@ -383,8 +415,15 @@
                         const card = `
                             <div class="product-card">
                                 <div class="card-header">
-                                    <span class="card-sku">${product.sku}</span>
-                                    <span class="card-status active">Aktif</span>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="card-sku">${product.sku}</span>
+                                        <button onclick="deleteProduct('${product.id}')" class="delete-btn" title="Hapus Produk">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    </div>
+                                    <span class="card-status ${product.status.toLowerCase() === 'active' ? 'active' : 'inactive'}">
+                                        ${product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                                    </span>
                                 </div>
                                 <div class="card-body">
                                     <h3>${product.name}</h3>
@@ -403,6 +442,28 @@
                     document.getElementById('totalCount').textContent = result.data.length;
                 })
                 .catch(error => console.error('Error fetching data:', error));
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+                fetch(`/api/products/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Penting untuk keamanan Laravel
+                    }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.status === 'success') {
+                        alert(result.message);
+                        location.reload(); // Refresh untuk melihat perubahan
+                    } else {
+                        alert('Gagal menghapus: ' + result.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
         }
     </script>
     

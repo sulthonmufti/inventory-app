@@ -126,4 +126,41 @@ class ProductController extends Controller
             'data' => $product
         ], 201);
     }
+
+    #[OA\Delete(
+        path: "/api/products/{id}",
+        summary: "Menghapus produk berdasarkan ID",
+        tags: ["Products"],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "ID Produk yang ingin dihapus",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(response: 200, description: "Produk berhasil dihapus"),
+            new OA\Response(response: 404, description: "Produk tidak ditemukan")
+        ]
+    )]
+    public function destroy($id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Produk tidak ditemukan'
+            ], 404);
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Produk berhasil dihapus'
+        ], 200);
+    }
 }

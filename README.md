@@ -57,6 +57,7 @@ php artisan serve
 |---|---|---|
 | `GET` | `/api/products?category=` | Fetch product list (use `all` for all products) |
 | `POST` | `/api/products` | Add a new product |
+| `DELETE` | `/api/products/{id}` | Delete a product by ID |
 
 ---
 
