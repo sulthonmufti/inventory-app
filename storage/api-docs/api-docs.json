@@ -98,6 +98,63 @@
             }
         },
         "/api/products/{id}": {
+            "put": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Mengupdate data produk",
+                "operationId": "6a7e11900844cd85cff66e662b82bd4c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Produk yang ingin diupdate",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Hoodie Edit"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "Clothing"
+                                    },
+                                    "price": {
+                                        "type": "integer",
+                                        "example": 150000
+                                    },
+                                    "stock": {
+                                        "type": "integer",
+                                        "example": 20
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Update Berhasil"
+                    },
+                    "404": {
+                        "description": "Produk Tidak Ditemukan"
+                    },
+                    "422": {
+                        "description": "Validasi Gagal"
+                    }
+                }
+            },
             "delete": {
                 "tags": [
                     "Products"

@@ -163,4 +163,58 @@ class ProductController extends Controller
             'message' => 'Produk berhasil dihapus'
         ], 200);
     }
+
+    #[OA\Put(
+        path: "/api/products/{id}",
+        summary: "Mengupdate data produk",
+        tags: ["Products"],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "ID Produk yang ingin diupdate",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: "name", type: "string", example: "Hoodie Edit"),
+                    new OA\Property(property: "category", type: "string", example: "Clothing"),
+                    new OA\Property(property: "price", type: "integer", example: 150000),
+                    new OA\Property(property: "stock", type: "integer", example: 20)
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: "Update Berhasil"),
+            new OA\Response(response: 404, description: "Produk Tidak Ditemukan"),
+            new OA\Response(response: 422, description: "Validasi Gagal")
+        ]
+    )]
+    public function update(Request $request, $id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json(['status' => 'error', 'message' => 'Produk tidak ditemukan'], 404);
+        }
+
+        $validated = $request->validate([
+            'name'     => 'sometimes|string|max:255',
+            'category' => 'sometimes|string',
+            'price'    => 'sometimes|numeric',
+            'stock'    => 'sometimes|integer'
+        ]);
+
+        $product->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil diupdate',
+            'data' => $product
+        ], 200);
+    }
 }

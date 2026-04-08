@@ -205,6 +205,25 @@
             display: block;
         }
 
+        /* ── Style button edit ───────────────────────────────────── */
+        .edit-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background-color: #e0f2fe; /* Biru muda */
+            color: #0284c7; /* Biru standar */
+            border: 1px solid #bae6fd;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+        .edit-btn:hover {
+            background-color: #0284c7;
+            color: white;
+        }
+
         /* ── Empty State ───────────────────────────────────── */
         .empty-state {
             grid-column: 1 / -1;
@@ -262,6 +281,9 @@
             <div class="card-header">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="card-sku">{{ $product->sku }}</span>
+                    <button onclick="editProduct('{{ json_encode($product) }}')" class="edit-btn" title="Edit Produk">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
                     <button onclick="deleteProduct('{{ $product->id }}')" class="delete-btn" title="Hapus Produk">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                     </button>
@@ -464,6 +486,50 @@
                 })
                 .catch(error => console.error('Error:', error));
             }
+        }
+
+        function editProduct(product) {
+            // Isi form dengan data yang mau diedit
+            document.getElementById('newName').value = product.name;
+            document.getElementById('newSku').value = product.sku;
+            document.getElementById('newSku').disabled = true; // SKU biasanya tidak boleh diedit
+            document.getElementById('newCategory').value = product.category;
+            document.getElementById('newPrice').value = product.price;
+            document.getElementById('newStock').value = product.stock;
+
+            // Ubah tombol simpan menjadi tombol Update
+            const submitBtn = document.querySelector('#formProduk button');
+            submitBtn.textContent = 'Update Data';
+            submitBtn.onclick = function(e) {
+                e.preventDefault();
+                updateProduct(product.id);
+            };
+        }
+
+        function updateProduct(id) {
+            const data = {
+                name: document.getElementById('newName').value,
+                category: document.getElementById('newCategory').value,
+                price: document.getElementById('newPrice').value,
+                stock: document.getElementById('newStock').value
+            };
+
+            fetch(`/api/products/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    alert('Berhasil diupdate!');
+                    location.reload();
+                }
+            });
         }
     </script>
     
