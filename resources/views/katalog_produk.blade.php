@@ -224,6 +224,99 @@
             color: white;
         }
 
+        /* ── Modal Overlay Styled ─────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 17, 23, 0.85); /* Darker backdrop */
+            backdrop-filter: blur(8px);
+            display: none; /* Kita pakai flex di JS */
+            align-items: center; justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow);
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .modal-body { padding: 1.5rem; }
+
+        .modal-group { margin-bottom: 1.2rem; }
+
+        .modal-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .modal-input:focus { border-color: var(--accent); }
+
+        .modal-footer {
+            padding: 1rem 1.5rem 1.5rem;
+            display: flex; gap: 1rem;
+        }
+
+        .btn-save {
+            flex: 2;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-save:hover { background: var(--accent-light); }
+
+        .btn-cancel {
+            flex: 1;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 0.8rem;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
         /* ── Empty State ───────────────────────────────────── */
         .empty-state {
             grid-column: 1 / -1;
@@ -277,31 +370,19 @@
     <section class="product-grid" id="productGrid">
 
         @forelse ($products as $product)
-        <div class="product-card">
+        <div class="product-card" data-name="{{ strtolower($product->name) }}" data-sku="{{ strtolower($product->sku) }}" data-status="{{ strtolower($product->status) }}">
             <div class="card-header">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="card-sku">{{ $product->sku }}</span>
-                    <button 
+                    <button type="button" 
                         class="edit-btn" 
                         title="Edit Produk"
-                        data-product='@json($product)'
-                        onclick="handleEdit(this)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
+                        data-product='@json($product)' 
+                        onclick="openEditModal(this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                     </button>
-                    
-                    <button 
-                        class="delete-btn" 
-                        title="Hapus Produk"
-                        data-id="{{ $product->id }}"
-                        onclick="handleDelete(this)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
+                    <button onclick="deleteProduct('{{ $product->id }}')" class="delete-btn" title="Hapus Produk">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                     </button>
                 </div>
                 <span class="card-status {{ strtolower($product->status) === 'active' ? 'active' : 'inactive' }}">
@@ -309,7 +390,7 @@
                 </span>
             </div>
             <div class="card-body">
-                <h3>{{ $product->name }}</h3>
+                <h3 title="{{ $product->name }}">{{ $product->name }}</h3>
                 <span class="card-category">{{ $product->category }}</span>
             </div>
             <div class="card-footer">
@@ -351,6 +432,43 @@
         </form>
         <div id="statusPesan"></div>
     </section>
+
+    <div id="modalEdit" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Produk</h3>
+                <button onclick="closeModal()" class="close-btn">&times;</button>
+            </div>
+            <form id="formUpdateProduk">
+                <div class="modal-body">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="modal-group">
+                        <label>Nama Produk</label>
+                        <input type="text" id="editName" class="modal-input" required>
+                    </div>
+                    <div class="modal-group">
+                        <label>Kategori</label>
+                        <input type="text" id="editCategory" class="modal-input" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="modal-group" style="flex:1;">
+                            <label>Harga (Rp)</label>
+                            <input type="number" id="editPrice" class="modal-input" required>
+                        </div>
+                        <div class="modal-group" style="flex:1;">
+                            <label>Stok</label>
+                            <input type="number" id="editStock" class="modal-input" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="btn-save">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         // ── Search & Filter ─────────────────────────────
@@ -441,29 +559,36 @@
                 .then(response => response.json())
                 .then(result => {
                     const grid = document.getElementById('productGrid');
-                    grid.innerHTML = ''; 
+                    grid.innerHTML = ''; // Kosongkan grid lama
 
+                    if (result.data.length === 0) {
+                        grid.innerHTML = '<div class="empty-state"><h3>Produk tidak ditemukan</h3></div>';
+                        return;
+                    }
+
+                    // 3. Render ulang data baru ke dalam Grid
                     result.data.forEach(product => {
-                        // Ubah objek menjadi string JSON yang aman untuk atribut HTML
-                        const productString = JSON.stringify(product).replace(/'/g, "&apos;");
-
                         const card = `
                             <div class="product-card">
                                 <div class="card-header">
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <span class="card-sku">${product.sku}</span>
-                                        
-                                        <button class="edit-btn" data-product='${productString}' onclick="handleEdit(this)">
-                                            <svg>...</svg>
-                                        </button>
-                                        
-                                        <button class="delete-btn" data-id="${product.id}" onclick="handleDelete(this)">
-                                            <svg>...</svg>
+                                        <button onclick="deleteProduct('${product.id}')" class="delete-btn" title="Hapus Produk">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                                         </button>
                                     </div>
-                                    <span class="card-status ${product.status.toLowerCase()}">${product.status}</span>
+                                    <span class="card-status ${product.status.toLowerCase() === 'active' ? 'active' : 'inactive'}">
+                                        ${product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                                    </span>
                                 </div>
-                                ...
+                                <div class="card-body">
+                                    <h3>${product.name}</h3>
+                                    <span class="card-category">${product.category || 'General'}</span>
+                                </div>
+                                <div class="card-footer">
+                                    <span class="card-price">Rp ${new Intl.NumberFormat('id-ID').format(product.price)}</span>
+                                    <span class="card-stock">Stok: <strong>${product.stock}</strong></span>
+                                </div>
                             </div>
                         `;
                         grid.innerHTML += card;
@@ -497,71 +622,34 @@
             }
         }
 
-        function editProduct(product) {
-            // Isi form dengan data yang mau diedit
-            document.getElementById('newName').value = product.name;
-            document.getElementById('newSku').value = product.sku;
-            document.getElementById('newSku').disabled = true; // SKU biasanya tidak boleh diedit
-            document.getElementById('newCategory').value = product.category;
-            document.getElementById('newPrice').value = product.price;
-            document.getElementById('newStock').value = product.stock;
-
-            // Ubah tombol simpan menjadi tombol Update
-            const submitBtn = document.querySelector('#formProduk button');
-            submitBtn.textContent = 'Update Data';
-            submitBtn.onclick = function(e) {
-                e.preventDefault();
-                updateProduct(product.id);
-            };
-        }
-
-        function updateProduct(id) {
-            const data = {
-                name: document.getElementById('newName').value,
-                category: document.getElementById('newCategory').value,
-                price: document.getElementById('newPrice').value,
-                stock: document.getElementById('newStock').value
-            };
-
-            fetch(`/api/products/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 'success') {
-                    alert('Berhasil diupdate!');
-                    location.reload();
-                }
-            });
-        }
-
-        function openEditModal(product) {
-            // 1. Isi input modal dengan data produk yang diklik
+        // 1. Fungsi Buka Modal
+        function openEditModal(btn) {
+            const product = JSON.parse(btn.getAttribute('data-product'));
+            
+            // Isi field modal dengan data produk yang dipilih
             document.getElementById('editId').value = product.id;
             document.getElementById('editName').value = product.name;
             document.getElementById('editCategory').value = product.category;
             document.getElementById('editPrice').value = product.price;
             document.getElementById('editStock').value = product.stock;
-
-            // 2. Tampilkan Modal
+            
+            // Tampilkan modal
             document.getElementById('modalEdit').style.display = 'flex';
         }
 
+        // 2. Fungsi Tutup Modal
         function closeModal() {
             document.getElementById('modalEdit').style.display = 'none';
         }
 
-        // Event listener untuk tombol "Simpan" di dalam Modal
-        document.getElementById('formUpdateProduk').addEventListener('submit', function(e) {
+        // Logic UPDATE Produk (PUT)
+        const formUpdateProduk = document.getElementById('formUpdateProduk');
+
+        formUpdateProduk.addEventListener('submit', function(e) {
             e.preventDefault();
+            e.stopImmediatePropagation(); // Mencegah event berjalan dua kali jika ada duplikasi listener
+
             const id = document.getElementById('editId').value;
-            
             const data = {
                 name: document.getElementById('editName').value,
                 category: document.getElementById('editCategory').value,
@@ -574,29 +662,141 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
                 },
                 body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(result => {
                 if (result.status === 'success') {
-                    alert('Data berhasil diperbarui!');
-                    location.reload();
+                    // HANYA ADA SATU ALERT DI SINI
+                    alert('✅ ' + result.message); 
+                    
+                    closeModal();
+                    location.reload(); 
+                } else {
+                    alert('❌ Gagal: ' + (result.message || 'Terjadi kesalahan'));
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Terjadi kesalahan koneksi.');
             });
         });
 
-        function handleEdit(element) {
-            // Mengambil data dari atribut data-product yang sudah diconvert jadi objek
-            const product = JSON.parse(element.getAttribute('data-product'));
-            openEditModal(product);
+        // 3. Update fetchByCategory agar tombol TIDAK HILANG
+        function fetchByCategory(kategori, element) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+
+            fetch(`/api/products?category=${kategori}`)
+                .then(response => response.json())
+                .then(result => {
+                    const grid = document.getElementById('productGrid');
+                    grid.innerHTML = ''; 
+
+                    if (result.data.length === 0) {
+                        grid.innerHTML = '<div class="empty-state"><h3>Produk tidak ditemukan</h3></div>';
+                        return;
+                    }
+
+                    result.data.forEach(product => {
+                        // Convert object ke string agar bisa masuk ke onclick
+                        const productJSON = JSON.stringify(product).replace(/'/g, "&apos;");
+                        
+                        const card = `
+                            <div class="product-card">
+                                <div class="card-header">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="card-sku">${product.sku}</span>
+                                        <button class="edit-btn" data-product='${productJSON}' onclick="openEditModal(this)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                        </button>
+                                        <button onclick="deleteProduct('${product.id}')" class="delete-btn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                        </button>
+                                    </div>
+                                    <span class="card-status ${product.status.toLowerCase()}">${product.status}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h3>${product.name}</h3>
+                                    <span class="card-category">${product.category || 'General'}</span>
+                                </div>
+                                <div class="card-footer">
+                                    <span class="card-price">Rp ${new Intl.NumberFormat('id-ID').format(product.price)}</span>
+                                    <span class="card-stock">Stok: <strong>${product.stock}</strong></span>
+                                </div>
+                            </div>
+                        `;
+                        grid.innerHTML += card;
+                    });
+                    document.getElementById('totalCount').textContent = result.data.length;
+                });
         }
-        function handleDelete(element) {
-            const id = element.getAttribute('data-id');
-            deleteProduct(id);
-        }
+
+        // 4. Submit Update via API PUT
+        document.getElementById('formUpdateProduk').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('editId').value;
+            const data = {
+                name: document.getElementById('editName').value,
+                category: document.getElementById('editCategory').value,
+                price: document.getElementById('editPrice').value,
+                stock: document.getElementById('editStock').value
+            };
+
+            // Pastikan URL-nya benar sesuai API Resource Anda
+            fetch(`/api/products/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    // PENTING: Ambil token dari meta tag atau tulis manual jika tidak ada
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content 
+                },
+                body: JSON.stringify(data)
+            })
+            .then(async response => {
+                const result = await response.json();
+                if (response.ok) {
+                    alert('✅ Product updated successfully!');
+                    location.reload(); // Refresh untuk melihat perubahan
+                } else {
+                    alert('❌ Update failed: ' + (result.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Connection error to API');
+            });
+        });
+
+        // function updateProduct(id) {
+        //     const data = {
+        //         name: document.getElementById('newName').value,
+        //         category: document.getElementById('newCategory').value,
+        //         price: document.getElementById('newPrice').value,
+        //         stock: document.getElementById('newStock').value
+        //     };
+
+        //     fetch(`/api/products/${id}`, {
+        //         method: 'PUT',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'Accept': 'application/json',
+        //             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        //         },
+        //         body: JSON.stringify(data)
+        //     })
+        //     .then(response => response.json())
+        //     .then(result => {
+        //         if (result.status === 'success') {
+        //             alert('Berhasil diupdate!');
+        //             location.reload();
+        //         }
+        //     });
+        // }
     </script>
-    
 </body>
 </html>
