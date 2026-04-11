@@ -16,14 +16,6 @@ A web-based product inventory management application built with **Laravel 13**. 
 
 ---
 
-## 🔗 Application Access
-
-Once the server is running, you can access the following pages:
-- **Product Catalog**: `/katalog`
-- **API Documentation (Swagger)**: `/api/documentation`
-
----
-
 ## 🛠️ Tech Stack
 
 | Layer     | Technology             |
@@ -59,12 +51,21 @@ php artisan serve
 
 ---
 
+## 🔗 Application Access
+
+Once the server is running, you can access the following pages:
+- **Product Catalog**: `/katalog`
+- **API Documentation (Swagger)**: `/api/documentation`
+
+---
+
 ## 🌐 API Endpoints
 
 | Method   | Endpoint                  | Description                                     |
 | -------- | ------------------------- | ----------------------------------------------- |
 | `GET`    | `/api/products?category=` | Fetch product list (use `all` for all products) |
 | `POST`   | `/api/products`           | Add a new product                               |
+| `PUT`    | `/api/products/{id}`      | Update an existing product by ID                |
 | `DELETE` | `/api/products/{id}`      | Delete a product by ID                          |
 
 ---
